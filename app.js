@@ -4,7 +4,9 @@ const express = require('express');
 const ejs = require('ejs');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
-const encrypt = require('mongoose-encryption');
+// const encrypt = require('mongoose-encryption');
+const md5 = require('md5');
+
 
 
 const app = express();
@@ -26,7 +28,7 @@ const userSchema = mongoose.Schema({
 
 // let secret = "notsosecret";
 // let secret = "nosecret";
-userSchema.plugin(encrypt, { secret: process.env.SECRET, encryptedFields: ['password']  });
+// userSchema.plugin(encrypt, { secret: process.env.SECRET, encryptedFields: ['password']  });
 
 
 const user = mongoose.model('user', userSchema);
@@ -50,7 +52,7 @@ app.get('/secrets', function (req, res){
 
 app.post('/register', function (req, res){
   const username = req.body.username;
-  const pwd = req.body.password;
+  const pwd = md5(req.body.password);
   const newUser = new user({
     username: username,
     password: pwd
@@ -66,7 +68,7 @@ app.post('/register', function (req, res){
 
 app.post('/login', function(req, res){
   const username = req.body.username;
-  const pwd = req.body.password;
+  const pwd = md5(req.body.password);
   user.findOne({username: username}, function(err, data){
     if(err){
       console.log(err + " User Not Found");
